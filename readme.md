@@ -1,4 +1,4 @@
-# Ferris Examples
+# Ferris Examples - this repository is a work in progress!
 
 Get your head around how ferris is meant to be used to make games with a bunch of worked examples
 
