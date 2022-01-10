@@ -1,0 +1,6 @@
+[submodule "lib/ferris"]
+	path = lib/ferris
+	url = https://github.com/1bardesign/ferris
+[submodule "lib/batteries"]
+	path = lib/batteries
+	url = https://github.com/1bardesign/batteries
