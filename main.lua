@@ -12,14 +12,6 @@ lg = love.graphics
 --	ideally ferris-side
 keyboard = ferris.keyboard()
 
---upscale shared canvas
-local scale_factor = 2
-screen_canvas = lg.newCanvas(
-	lg.getWidth() / scale_factor,
-	lg.getHeight() / scale_factor
-)
-screen_canvas:setFilter("nearest", "nearest")
-
 --
 game_state = require("src.game_state")
 
@@ -29,17 +21,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	lg.push("all")
-	lg.setCanvas(screen_canvas)
-	lg.clear(lg.getBackgroundColor())
-	lg.scale(2)
 	game_state:draw()
-	lg.pop()
-	lg.push("all")
-	lg.setBlendMode("alpha", "premultiplied")
-	lg.scale(2)
-	lg.draw(screen_canvas)
-	lg.pop()
 end
 
 function love.keypressed(k)

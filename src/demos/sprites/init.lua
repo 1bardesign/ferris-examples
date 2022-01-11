@@ -2,12 +2,21 @@ local sprite_demo = class({})
 
 function sprite_demo:new(parent)
 	self.k = ferris.kernel()
-		:add_system("behaviour", ferris.systems.behaviour_system)
-		:add_system("sprite", ferris.systems.sprite_system)
-		:add_system("animation", ferris.systems.animation_system)
+		:add_system("tiles", require("src.systems.tile_system")(assets.map.sprites, assets.image.tiles, vec2(8, 8)))
+		:add_system("behaviour", ferris.systems.behaviour_system())
+		:add_system("sprite", ferris.systems.sprite_system())
+		:add_system("animation", ferris.systems.animation_system())
+
+	require("src.demos.sprites.wheel")(self.k.systems, {
+		pos = vec2(21, 8):scalar_mul_inplace(8),
+	})
 end
 
-function sprite_demo:update(dt) end
-function sprite_demo:draw() end
+function sprite_demo:update(dt)
+	self.k:update(dt)
+end
+function sprite_demo:draw()
+	self.k:draw()
+end
 
 return sprite_demo

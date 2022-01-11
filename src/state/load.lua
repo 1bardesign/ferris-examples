@@ -16,6 +16,7 @@ assets = {
 		--for rendering
 		tiles = "tiles.png",
 		particles = "particles.png",
+		wheel_bits = "wheel-bits.png",
 	},
 	imagedata = {
 		--pixel data required
@@ -30,6 +31,7 @@ assets = {
 	map = {
 		--tiled lua exports
 		title = "title",
+		sprites = "sprites",
 	},
 }
 
@@ -85,8 +87,8 @@ function state:enter()
 					self.stage,
 					self.current_target
 				),
-			0, screen_canvas:getHeight() / 2.1,
-			screen_canvas:getWidth(),
+			0, ui_canvas:getHeight() / 2.1,
+			ui_canvas:getWidth(),
 			"center"
 		)
 	end)
@@ -100,6 +102,9 @@ function state:update(dt)
 end
 
 function state:draw()
+end
+
+function state:draw_ui()
 	self.k:draw()
 end
 

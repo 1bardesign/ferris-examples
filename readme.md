@@ -9,7 +9,7 @@ Some more focussed "feature" demos are being prepared alongside a more integrate
 ## Demos
 
 - sprites and animation
-	- z sorted animated particle spam
+	- z sorted animated ferris wheel and particle spam
 - physics
 	- bouncy ball physics hell
 - entities

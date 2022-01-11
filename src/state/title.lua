@@ -7,9 +7,11 @@ local major_col = 0xffffffff
 local minor_col = 0xffa0a0a0
 
 function state:enter()
+	--just the tilemap for now
 	self.k = ferris.kernel()
 		:add_system("tiles", require("src.systems.tile_system")(assets.map.title, assets.image.tiles, vec2(8, 8)))
 	
+	--set up some graphics stuff
 	self.title_font = lg.newFont(48, "mono")
 	lg.setBackgroundColor(colour.unpack_argb(0xffbed6fd))
 
@@ -61,6 +63,7 @@ function state:enter()
 	}
 	self.selected = 1
 
+	--interaction with menu
 	self.k:add_task("update", function(k, dt)
 		if keyboard:just_pressed("up") then
 			self.selected = self.selected - 1
@@ -78,9 +81,10 @@ function state:enter()
 			self.menu[self.selected][3]()
 		end
 	end)
-	self.k:add_task("draw", function(k)
+
+	--drawing the menu
+	self.k:add_task("draw_ui", function(k)
 		lg.push("all")
-		lg.scale(0.5)
 
 		local para_w = 360
 		local menu_w = 200
@@ -95,7 +99,7 @@ function state:enter()
 				ferris-examples
 			]]):dedent(),
 			0, 0,
-			screen_canvas:getWidth(),
+			ui_canvas:getWidth(),
 			"center"
 		)
 		lg.pop()
@@ -110,7 +114,7 @@ function state:enter()
 			end
 			lg.printf(
 				s,
-				screen_canvas:getWidth()/2 - menu_w/2, 0,
+				ui_canvas:getWidth()/2 - menu_w/2, 0,
 				menu_w,
 				"left"
 			)
@@ -121,7 +125,7 @@ function state:enter()
 		lg.setColor(colour.unpack_argb(major_col))
 		lg.printf(
 			(self.menu[self.selected][2]):dedent(),
-			screen_canvas:getWidth()/2 - para_w/2, 0,
+			ui_canvas:getWidth()/2 - para_w/2, 0,
 			para_w,
 			"left"
 		)
@@ -139,6 +143,10 @@ end
 
 function state:draw()
 	self.k:draw()
+end
+
+function state:draw_ui()
+	self.k:run_task("draw_ui")
 end
 
 return state

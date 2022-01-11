@@ -1,4 +1,4 @@
---untra basic game state management
+--ultra basic game state management
 
 --global
 game_state = {
@@ -16,6 +16,22 @@ game_state = {
 	)
 }
 
+--upscale shared "screens"
+local game_factor = 2
+local game_zoom = 2
+local ui_factor = 2
+local ui_zoom = 1
+game_canvas = lg.newCanvas(
+	lg.getWidth() / game_factor,
+	lg.getHeight() / game_factor
+)
+ui_canvas = lg.newCanvas(
+	lg.getWidth() / ui_factor,
+	lg.getHeight() / ui_factor
+)
+game_canvas:setFilter("nearest", "nearest")
+ui_canvas:setFilter("nearest", "nearest")
+
 --start off black, fade in
 game_state.fade:flash(0xff000000, 0.1)
 
@@ -26,7 +42,28 @@ function game_state:update(dt)
 end
 
 function game_state:draw()
-	self.states:draw()
+	lg.push("all")
+		lg.push()
+			lg.scale(game_zoom)
+			lg.setCanvas(game_canvas)
+			lg.clear(lg.getBackgroundColor())
+			self.states:draw()
+		lg.pop()
+
+		lg.push()
+			lg.scale(ui_zoom)
+			lg.setCanvas(ui_canvas)
+			lg.clear(0, 0, 0, 0)
+			self.states:_call("draw_ui")
+		lg.pop()
+	lg.pop()
+
+	lg.push("all")
+		lg.setBlendMode("alpha", "premultiplied")
+		lg.draw(game_canvas, 0, 0, 0, game_factor)
+		lg.draw(ui_canvas, 0, 0, 0, ui_factor)
+	lg.pop()
+
 	self.fade:draw()
 end
 
