@@ -5,8 +5,7 @@ local state = {}
 
 --set global graphics stuff on import
 lg.setDefaultFilter("nearest", "nearest")
-lg.setBackgroundColor(colour.unpack_argb(0xff000000))
-lg.setFont(lg.newFont(14, "mono"))
+lg.setFont(lg.newFont(12, "mono"))
 
 --
 local next_state = "title"
@@ -15,7 +14,8 @@ local next_state = "title"
 assets = {
 	image = {
 		--for rendering
-		sheet = "nesmup.png",
+		tiles = "tiles.png",
+		particles = "particles.png",
 	},
 	imagedata = {
 		--pixel data required
@@ -27,11 +27,17 @@ assets = {
 	music = {
 		--streaming audio assets
 	},
+	map = {
+		--tiled lua exports
+		title = "title",
+	},
 }
 
 function state:enter()
 	self.k = ferris.kernel()
 	
+	lg.setBackgroundColor(colour.unpack_argb(0xff000000))
+
 	self.stage = ""
 	self.current_target = ""
 	self.done = false
@@ -41,16 +47,19 @@ function state:enter()
 	load_async:call(function()
 		for _, v in ipairs({
 			{"image", function(path)
-				return love.graphics.newImage(path)
+				return love.graphics.newImage("assets/images/"..path)
 			end},
 			{"imagedata", function(path)
-				return love.image.newImageData(path)
+				return love.image.newImageData("assets/images/"..path)
 			end},
 			{"sound", function(path)
-				return love.audio.newSource(path, "static")
+				return love.audio.newSource("assets/audio/"..path, "static")
 			end},
 			{"music", function(path)
-				return love.audio.newSource(path, "streaming")
+				return love.audio.newSource("assets/audio/"..path, "streaming")
+			end},
+			{"map", function(path)
+				return require("assets.maps."..path)
 			end},
 		}) do
 			local stage, loader = unpack(v)
@@ -58,7 +67,7 @@ function state:enter()
 			local collection = assets[stage]
 			for name, path in pairs(collection) do
 				self.current_target = path
-				collection[name] = loader("assets/"..path)
+				collection[name] = loader(path)
 			end
 		end
 		self.stage = "done!"

@@ -5,8 +5,8 @@ local state = {}
 
 function state:enter()
 	self.state = state_machine({
-
-	}, "what")
+		sprites = require("src.demos.sprites")(self),
+	}, "sprites")
 end
 
 function state:update(dt)

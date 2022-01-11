@@ -8,8 +8,10 @@ local minor_col = 0xffa0a0a0
 
 function state:enter()
 	self.k = ferris.kernel()
+		:add_system("tiles", require("src.systems.tile_system")(assets.map.title, assets.image.tiles, vec2(8, 8)))
 	
 	self.title_font = lg.newFont(48, "mono")
+	lg.setBackgroundColor(colour.unpack_argb(0xffbed6fd))
 
 	--note: no nice UI stuff yet :)
 	--	this should be simple enough to understand, though
@@ -17,7 +19,7 @@ function state:enter()
 		{"info", [[
 			This is a collection of examples for Ferris; a game making toolkit built on top of löve.
 
-			You can check out the demos interactively here, but be sure to explore the code afterwards! It is written to be easy to understand and reuse, and is freely licensed (zlib) so you can remix it into your own projects.
+			Be sure to explore the code afterwards! It is written to be easy to understand, and is freely licensed (zlib) so you can use it in your own projects.
 
 			Use this menu with the arrow keys and space/enter/z
 		]], function()
@@ -38,16 +40,16 @@ function state:enter()
 			game_state:transition("game")
 		end},
 		{"source code", [[
-			The code is currently hosted on github.
+			The code for these examples, and for Ferris itself, is currently hosted on github, and is freely available under the zlib license.
 
-			Select this option to open a link to the repository.
+			Select this option to view to the example repository.
 		]], function()
 			love.system.openURL("https://github.com/1bardesign/ferris-examples/")
 		end},
 		{"art", [[
 			The art used is adapted from CC0 art from the magnificent "surt"; the adaptations are likewise licensed CC0.
 
-			Select this option to open a link to the OpenGameArt listing.
+			Select this option to view the OpenGameArt listing.
 		]], function()
 			love.system.openURL("https://opengameart.org/content/nesmup")
 		end},
@@ -78,26 +80,27 @@ function state:enter()
 	end)
 	self.k:add_task("draw", function(k)
 		lg.push("all")
+		lg.scale(0.5)
 
-		local para_w = 500
+		local para_w = 360
 		local menu_w = 200
 
 		lg.setColor(colour.unpack_argb(major_col))
 
-		lg.translate(0, 10)
+		lg.translate(0, 26)
 		lg.push("all")
 		lg.setFont(self.title_font)
 		lg.printf(
 			([[
 				ferris-examples
 			]]):dedent(),
-			screen_canvas:getWidth()/2 - para_w/2, 0,
-			para_w,
+			0, 0,
+			screen_canvas:getWidth(),
 			"center"
 		)
 		lg.pop()
 
-		lg.translate(0, 70)
+		lg.translate(0, 68)
 		for i, v in ipairs(self.menu) do
 			local s = v[1]
 			lg.setColor(colour.unpack_argb(minor_col))
@@ -113,7 +116,7 @@ function state:enter()
 			)
 			lg.translate(0, 16)
 		end
-		lg.translate(0, 30)
+		lg.translate(0, 20)
 		--
 		lg.setColor(colour.unpack_argb(major_col))
 		lg.printf(
