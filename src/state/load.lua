@@ -17,6 +17,7 @@ assets = {
 		tiles = "tiles.png",
 		particles = "particles.png",
 		wheel_bits = "wheel-bits.png",
+		human = "human.png",
 	},
 	imagedata = {
 		--pixel data required

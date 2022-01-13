@@ -18,6 +18,7 @@ game_state = require("src.game_state")
 function love.update(dt)
 	keyboard:update(dt)
 	game_state:update(dt)
+	ferris.entity.flush_entities()
 end
 
 function love.draw()
