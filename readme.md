@@ -9,13 +9,11 @@ Some more focussed "feature" demos are being prepared alongside a more integrate
 ## Demos
 
 - sprites and animation
-	- z sorted animated ferris wheel and particle spam
+	- z sorted animated ferris wheel and firework particle spam
 - physics
 	- bouncy ball physics hell
-- entities
-	- infinitely spawning 2 teams of brawlers on a polyline map
-- events
-	- pheremone creature "ecosystem"
+- entities and events
+	- infinitely spawning 2 teams of brawlers on a polyline map, with stats via event system
 
 ## Game
 

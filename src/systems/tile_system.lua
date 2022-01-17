@@ -3,8 +3,17 @@
 
 local tile_system = class()
 
-function tile_system:new(map, image, tilesize)
+function tile_system:new(args)
+	local map = args.map
+	local image = map.image
+	local tilesize = map.tilesize
 	local layer = map.layers[1]
+	if args.layer then
+		layer = functional.find_match(map.layers, function(v)
+			return v.name == args.layer
+		end)
+		assert:some(layer, "layer for tile system")
+	end
 	self.size = vec2(layer.width, layer.height)
 	self.tilesize = tilesize
 	self.image = image
@@ -17,7 +26,7 @@ function tile_system:new(map, image, tilesize)
 		self.image:getDimensions()
 	)
 	self.tiles = layer.data
-	self.pos = vec2()
+	self.pos = args.pos or vec2()
 end
 
 function tile_system:update(dt)
