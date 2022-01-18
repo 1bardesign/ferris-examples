@@ -7,19 +7,20 @@ return function(systems, args)
 		pos = args.pos:copy(),
 		vel = args.vel:copy(),
 		acc = vec2(0, 100),
-		radius = 4,
+		radius = 3.5,
 		bounce = 0.5,
 	})
 
 	local sprite = e:add_component("sprite", "sprite", img)
 	sprite.size = vec2(10, 10)
 	sprite.framesize = sprite.size:scalar_div(img:getDimensions())
-	sprite.frame:scalar_set(3, 0)
 	sprite.pos = body.pos --bind directly to body
+	sprite.frame:scalar_set(3, table.pick_random({0, 1}))
+	sprite.rot = love.math.random() * math.tau
 
 	e:add_component("behaviour", "roll_sprite", {
 		update = function(self, dt)
-			sprite.rot = sprite.rot + body.vel.x / (math.tau * math.max(1, body.radius)) * dt
+			sprite.rot = sprite.rot + body.vel.x / (math.tau * math.max(1, body.radius)) * 3 * dt
 		end,
 	})
 

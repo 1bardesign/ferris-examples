@@ -21,8 +21,8 @@ return function(systems, args)
 			if self.timer:expired() then
 				self.timer:reset()
 				require("src.demos.physics.ball")(systems, {
-					pos = body.pos,
-					vel = vec2(math.random_lerp(-1, 1) * 10, 50),
+					pos = body.pos:scalar_add(0, 10),
+					vel = vec2(math.random_lerp(-1, 1) * 10, 80),
 				})
 			end
 		end,
