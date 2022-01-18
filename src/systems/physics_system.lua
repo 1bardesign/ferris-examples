@@ -14,6 +14,15 @@ function physics_body:new(args)
 	self.grounded = false
 	self.was_grounded = false
 	self.bounce = args.bounce or 0
+
+	self.solid = args.solid
+	if self.solid == nil then
+		self.solid = true
+	end
+	self.collide_map = args.collide_map
+	if self.collide_map == nil then
+		self.collide_map = true
+	end
 end
 
 function physics_body:update(dt)
@@ -50,36 +59,44 @@ function physics_system:update(dt)
 		for j = i+1, #self.all do
 			local a = self.all[i]
 			local b = self.all[j]
-			local balance = intersect.balance_from_mass(a.mass, b.mass)
-			if balance and intersect.circle_circle_collide(
-				a.pos, a.radius,
-				b.pos, b.radius,
-				msv
-			) then
-				intersect.resolve_msv(
-					a.pos,
-					b.pos,
-					msv,
-					balance
-				)
-				local normal = msv:normalise_inplace()
-				intersect.bounce_off(a.vel, normal, a.bounce)
-				intersect.bounce_off(b.vel, normal, b.bounce)
+			if a.solid and b.solid then
+				local balance = intersect.balance_from_mass(a.mass, b.mass)
+				if balance and intersect.circle_circle_collide(
+					a.pos, a.radius,
+					b.pos, b.radius,
+					msv
+				) then
+					intersect.resolve_msv(
+						a.pos,
+						b.pos,
+						msv,
+						balance
+					)
+					local normal = msv:normalise_inplace()
+					intersect.bounce_off(a.vel, normal, a.bounce)
+					intersect.bounce_off(b.vel, normal, b.bounce)
+				end
 			end
 		end
 	end
 
 	--collide against level
-	for _, line in ipairs(self.level) do
-		for _, v in ipairs(self.all) do
-			if intersect.circle_line_collide(
-				v.pos, v.radius,
-				line[1], line[2], 1,
-				msv
-			) then
-				v.pos:vector_add_inplace(msv)
-				local normal = msv:normalise_inplace()
-				intersect.bounce_off(a.vel, normal, a.bounce)
+	for _, v in ipairs(self.all) do
+		if v.collide_map then
+			local normal = vec2()
+			for _, line in ipairs(self.level) do
+				if intersect.circle_line_collide(
+					v.pos, v.radius,
+					line[1], line[2],
+					1.5, --line radius
+					msv
+				) then
+					v.pos:vector_add_inplace(msv)
+					normal:vector_add_inplace(msv:normalise_inplace())
+				end
+			end
+			if normal:length_squared() ~= 0 then
+				intersect.bounce_off(v.vel, normal, v.bounce)
 			end
 		end
 	end
@@ -100,6 +117,7 @@ function physics_system:draw()
 		lg.setColor(colour.unpack_argb(0xffff8080))
 		for i, v in ipairs(self.all) do
 			lg.circle(
+				"line",
 				v.pos.x, v.pos.y,
 				v.radius
 			)
