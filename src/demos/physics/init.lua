@@ -30,8 +30,11 @@ function physics_demo:new(parent)
 			return v.name == name
 		end)
 	end
-	local player = fetch_object("player")
+
 	--create player
+	require("src.demos.physics.player")(self.k.systems, {
+		pos = fetch_object("player").pos,
+	})
 
 	--create dispenser
 	require("src.demos.physics.dispenser")(self.k.systems, {

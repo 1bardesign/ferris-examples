@@ -73,7 +73,7 @@
   <object id="4" name="dispenser" x="88.25" y="12.75">
    <point/>
   </object>
-  <object id="5" name="player" x="20.75" y="84.75">
+  <object id="5" name="player" x="271.75" y="57.75">
    <point/>
   </object>
   <object id="6" name="dispenser path" type="path" x="59.25" y="11.75">

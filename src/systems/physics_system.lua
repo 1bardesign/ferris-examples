@@ -9,6 +9,7 @@ function physics_body:new(args)
 	self.acc = args.acc or vec2()
 	self.mass = args.mass or 1
 	self.radius = args.radius or 8
+	self.normal = vec2(0, 0)
 	self.ground_friction = args.ground_friction or 1
 	self.air_friction = args.air_friction or 0
 	self.grounded = false
@@ -26,6 +27,7 @@ function physics_body:new(args)
 end
 
 function physics_body:update(dt)
+	self.normal:scalar_set(0, 0)
 	self.was_grounded = self.grounded
 	self.pos:fused_multiply_add_inplace(self.vel, dt)
 	self.vel:fused_multiply_add_inplace(self.acc, dt)
@@ -73,8 +75,9 @@ function physics_system:update(dt)
 						balance
 					)
 					local normal = msv:normalise_inplace()
-					intersect.bounce_off(a.vel, normal, a.bounce)
-					intersect.bounce_off(b.vel, normal, b.bounce)
+					--todo: exhange momentum
+					a.normal:fused_multiply_add_inplace(normal, 1)
+					b.normal:fused_multiply_add_inplace(normal, -1)
 				end
 			end
 		end
@@ -83,7 +86,7 @@ function physics_system:update(dt)
 	--collide against level
 	for _, v in ipairs(self.all) do
 		if v.collide_map then
-			local normal = vec2()
+			v.grounded = false
 			for _, line in ipairs(self.level) do
 				if intersect.circle_line_collide(
 					v.pos, v.radius,
@@ -91,12 +94,20 @@ function physics_system:update(dt)
 					1.5, --line radius
 					msv
 				) then
-					v.pos:vector_add_inplace(msv)
-					normal:vector_add_inplace(msv:normalise_inplace())
+					v.pos:fused_multiply_add_inplace(msv, 1)
+					v.normal:vector_add_inplace(msv:normalise_inplace())
 				end
 			end
-			if normal:length_squared() ~= 0 then
-				intersect.bounce_off(v.vel, normal, v.bounce)
+		end
+	end
+
+	--calc normal/grounded
+	for _, v in ipairs(self.all) do
+		if v.normal:length_squared() ~= 0 then
+			v.normal:normalise_inplace()
+			intersect.bounce_off(v.vel, v.normal, v.bounce)
+			if v.normal.y < -0.2 then
+				v.grounded = true
 			end
 		end
 	end
