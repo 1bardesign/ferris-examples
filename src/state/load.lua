@@ -18,6 +18,7 @@ assets = {
 		particles = "particles.png",
 		wheel_bits = "wheel-bits.png",
 		human = "human.png",
+		dispenser = "dispenser.png",
 	},
 	imagedata = {
 		--pixel data required
@@ -33,6 +34,7 @@ assets = {
 		--tiled lua exports
 		title = "title",
 		sprites = "sprites",
+		physics = "physics",
 	},
 }
 

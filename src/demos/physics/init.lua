@@ -2,13 +2,12 @@ local physics_demo = class({})
 
 function physics_demo:new(parent)
 	self.k = ferris.kernel()
-		:add_system("tiles", require("src.systems.tile_system"){
+		:add_system("bg_tiles", require("src.systems.tile_system"){
 			map = assets.map.physics,
 			layer = "bg",
 			image = assets.image.tiles,
 			tilesize = vec2(8, 8),
 		})
-		:add_system("physics", require("src.systems.physics_system")())
 		:add_system("behaviour", ferris.systems.behaviour_system())
 		:add_system("sprite", ferris.systems.sprite_system())
 		:add_system("animation", ferris.systems.animation_system())
@@ -18,6 +17,7 @@ function physics_demo:new(parent)
 			image = assets.image.tiles,
 			tilesize = vec2(8, 8),
 		})
+		:add_system("physics", require("src.systems.physics_system")())
 
 	local collisions = require("src.load_objects")(assets.map.physics, "collision")
 	for _, v in ipairs(collisions) do
@@ -25,16 +25,19 @@ function physics_demo:new(parent)
 	end
 
 	local objects = require("src.load_objects")(assets.map.physics, "objects")
-	local function fetch_object(type)
-		functional.find_match(objects, function(v)
-			return v.name == "player"
+	local function fetch_object(name)
+		return functional.find_match(objects, function(v)
+			return v.name == name
 		end)
 	end
 	local player = fetch_object("player")
 	--create player
-	local spawner = fetch_object("spawner")
-	local spawner_path = fetch_object("spawner_path")
-	--create spawner
+
+	--create dispenser
+	require("src.demos.physics.dispenser")(self.k.systems, {
+		spawn = fetch_object("dispenser"),
+		path = fetch_object("dispenser path"),
+	})
 end
 
 function physics_demo:update(dt)

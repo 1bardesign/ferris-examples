@@ -2,7 +2,11 @@ local sprite_demo = class({})
 
 function sprite_demo:new(parent)
 	self.k = ferris.kernel()
-		:add_system("tiles", require("src.systems.tile_system")(assets.map.sprites, assets.image.tiles, vec2(8, 8)))
+		:add_system("tiles", require("src.systems.tile_system"){
+			map = assets.map.sprites,
+			image = assets.image.tiles,
+			tilesize = vec2(8, 8),
+		})
 		:add_system("behaviour", ferris.systems.behaviour_system())
 		:add_system("sprite", ferris.systems.sprite_system())
 		:add_system("animation", ferris.systems.animation_system())

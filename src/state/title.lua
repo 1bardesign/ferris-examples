@@ -9,7 +9,11 @@ local minor_col = 0xffa0a0a0
 function state:enter()
 	--just the tilemap for now
 	self.k = ferris.kernel()
-		:add_system("tiles", require("src.systems.tile_system")(assets.map.title, assets.image.tiles, vec2(8, 8)))
+		:add_system("tiles", require("src.systems.tile_system"){
+			map = assets.map.title,
+			image = assets.image.tiles,
+			tilesize = vec2(8, 8),
+		})
 	
 	--set up some graphics stuff
 	self.title_font = lg.newFont(48, "mono")

@@ -5,8 +5,8 @@ local tile_system = class()
 
 function tile_system:new(args)
 	local map = args.map
-	local image = map.image
-	local tilesize = map.tilesize
+	local image = args.image
+	local tilesize = args.tilesize
 	local layer = map.layers[1]
 	if args.layer then
 		layer = functional.find_match(map.layers, function(v)
