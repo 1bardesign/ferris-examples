@@ -1,8 +1,6 @@
 return function(systems, args)
 	local e = ferris.entity(systems)
 
-	local img = assets.image.particles
-
 	local speed_mul = 20
 	local gravity = 100
 
@@ -77,44 +75,15 @@ return function(systems, args)
 			end
 		end,
 		add = function(self, vel, time)
-			local p = ferris.entity(systems)
-			local sprite = p:add_component("sprite", "sprite", img)
-
-			sprite.pos = self.pos:copy()
-			sprite.framesize:sset(1):scalar_div_inplace(4, 4)
-			sprite.size:vector_mul_inplace(sprite.framesize)
-			sprite.frame:sset(0, 0)
-			sprite.z = 10
-
-			local animation = p:add_component("animation", "animation", sprite)
-			animation:add_anim(
-				"puff",
-				animation:generate_frames_ordered_1d(0, 0, 4),
-				math.lerp(2, 8, love.math.random()),
-				false
-			)
-			animation:set_anim("puff")
-
-			local expire = p:add_component("behaviour", "expire", {
-				update = function()
-					if animation:done() then
-						p:destroy()
-					end
-				end,
-			})
-
-			local gravity = p:add_component("behaviour", "gravity", {
-				pos = sprite.pos, --used directly so we don't have to copy
+			require("src.shared_entities.particle")(systems, {
+				frame = love.math.random(0, 1),
+				pos = self.pos,
 				vel = vel:copy()
 					:scalar_mul_inplace(speed_mul)
 					:fused_multiply_add_inplace(self.vel, 0.5),
-				acc = vec2(0, gravity),
+				gravity = gravity,
 				friction = 5,
-				update = function(self, dt)
-					self.pos:fused_multiply_add_inplace(self.vel, dt)
-					self.vel:fused_multiply_add_inplace(self.acc, dt)
-					self.vel:apply_friction_inplace(self.friction, dt)
-				end,
+				z = 10,
 			})
 		end,
 	})

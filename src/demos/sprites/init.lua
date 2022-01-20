@@ -1,5 +1,8 @@
 local sprite_demo = class({})
 
+sprite_demo.name = "sprites and entities"
+sprite_demo.description = "complex sprite management and lots of particle spam"
+
 function sprite_demo:new(parent)
 	self.k = ferris.kernel()
 		:add_system("tiles", require("src.systems.tile_system"){

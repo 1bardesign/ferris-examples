@@ -5,7 +5,7 @@ return function(systems, args)
 	local sheet_row = table.pick_random({0, 1})
 
 	local sprite = e:add_component("sprite", "sprite", img)
-	sprite.framesize:sset(1):sdivi(2, 2)
+	sprite.framesize:sset(1):sdivi(5, 2)
 	sprite.frame:sset(0, sheet_row)
 	sprite.size:vmuli(sprite.framesize)
 	sprite.pos:vset(args.pos)

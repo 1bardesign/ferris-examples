@@ -46,6 +46,19 @@ local function load_objects(map, layer_name)
 			}
 		end
 
+		if v.shape == "rectangle" then
+			local halfsize = vec2(v.width, v.height):scalar_mul_inplace(0.5)
+			return {
+				{
+					shape = "aabb",
+					type = v.type,
+					name = v.name,
+					pos = pos:vector_add(halfsize),
+					halfsize = halfsize,
+				}
+			}
+		end
+
 		error("unsupported object type")
 
 	end)

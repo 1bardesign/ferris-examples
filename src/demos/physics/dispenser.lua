@@ -20,10 +20,28 @@ return function(systems, args)
 			self.timer:update(dt)
 			if self.timer:expired() then
 				self.timer:reset()
-				require("src.demos.physics.ball")(systems, {
+				local b = require("src.demos.physics.ball")(systems, {
 					pos = body.pos:scalar_add(0, 10),
 					vel = vec2(math.random_lerp(-1, 1) * 10, 80),
 				})
+				local particles_amount = 10
+				for i = 1, particles_amount do
+					require("src.shared_entities.particle")(e.systems, {
+						frame = love.math.random(0, 1),
+						pos = b:c("body").pos,
+						vel = b:c("body").vel
+							:scalar_mul(math.random_lerp(0.1, 0.8))
+							:vector_add(
+								vec2(1, 0)
+									:scalar_mul_inplace(love.math.random())
+									:rotate_inplace(math.tau * love.math.random())
+									:scalar_mul_inplace(50, 10)
+							),
+						gravity = 10,
+						friction = 2,
+						z = 10,
+					})
+				end
 			end
 		end,
 	})

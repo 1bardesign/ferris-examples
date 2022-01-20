@@ -39,7 +39,7 @@ return function(systems, args)
 
 			--individual launch timing
 			self.firework_timer:update(dt)
-			if self.firework_timer:expired() then
+			if self.firework_timer:expired() or keyboard:just_pressed("space") then
 				self.firework_timer:reset(
 					math.lerp(
 						2, 0.1,

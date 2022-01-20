@@ -1,5 +1,8 @@
 local physics_demo = class({})
 
+physics_demo.name = "physics and platforming"
+physics_demo.description = "an example physics system and a player avatar"
+
 function physics_demo:new(parent)
 	self.k = ferris.kernel()
 		:add_system("bg_tiles", require("src.systems.tile_system"){
@@ -22,6 +25,11 @@ function physics_demo:new(parent)
 	local collisions = require("src.load_objects")(assets.map.physics, "collision")
 	for _, v in ipairs(collisions) do
 		self.k.systems.physics:add_level_geo(v.a, v.b)
+	end
+
+	local water = require("src.load_objects")(assets.map.physics, "water")
+	for _, v in ipairs(water) do
+		self.k.systems.physics:add_zone(v.pos, v.halfsize, "water")
 	end
 
 	local objects = require("src.load_objects")(assets.map.physics, "objects")

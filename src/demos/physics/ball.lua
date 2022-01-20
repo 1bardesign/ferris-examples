@@ -6,10 +6,14 @@ return function(systems, args)
 	local body = e:add_component("physics", "body", {
 		pos = args.pos:copy(),
 		vel = args.vel:copy(),
-		acc = vec2(0, 100),
+		acc = vec2(0, 200),
 		radius = 3.5,
 		bounce = 0.5,
+		ground_friction = 0.2,
+		air_friction = 0.1,
 	})
+
+	require("src.demos.physics.float")(e, body, vec2(0, -10))
 
 	local sprite = e:add_component("sprite", "sprite", img)
 	sprite.size = vec2(10, 10)

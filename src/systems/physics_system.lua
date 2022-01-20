@@ -15,6 +15,8 @@ function physics_body:new(args)
 	self.grounded = false
 	self.was_grounded = false
 	self.bounce = args.bounce or 0
+	self.collisions = {}
+	self.zones = {}
 
 	self.solid = args.solid
 	if self.solid == nil then
@@ -27,18 +29,24 @@ function physics_body:new(args)
 end
 
 function physics_body:update(dt)
-	self.normal:scalar_set(0, 0)
-	self.was_grounded = self.grounded
-	self.pos:fused_multiply_add_inplace(self.vel, dt)
 	self.vel:fused_multiply_add_inplace(self.acc, dt)
+	self.pos:fused_multiply_add_inplace(self.vel, dt)
 	self.vel:apply_friction_inplace(self.grounded and self.ground_friction or self.air_friction, dt)
+	self.was_grounded = self.grounded
+	self.normal:scalar_set(0, 0)
+	table.clear(self.collisions)
+	table.clear(self.zones)
 end
 
 local physics_system = class()
 
+--can make this less than one to stay overlapping between frames rather than strobing even if not "pushing together"
+local resolve_amount = 1
+
 function physics_system:new()
 	ferris.base_system.add_deferred_management(self)
 	self.level = {}
+	self.zones = {}
 end
 
 function physics_system:create_component(args)
@@ -47,6 +55,13 @@ end
 
 function physics_system:add_level_geo(a, b)
 	table.insert(self.level, {a, b})
+end
+function physics_system:add_zone(pos, halfsize, type)
+	table.insert(self.zones, {
+		pos = pos,
+		halfsize = halfsize,
+		type = type,
+	})
 end
 
 function physics_system:update(dt)
@@ -74,10 +89,16 @@ function physics_system:update(dt)
 						msv,
 						balance
 					)
-					local normal = msv:normalise_inplace()
-					--todo: exhange momentum
-					a.normal:fused_multiply_add_inplace(normal, 1)
-					b.normal:fused_multiply_add_inplace(normal, -1)
+					--note, can only collide in one direction due to how the loops are formulated
+					local normal = msv:normalise()
+					table.insert(a.collisions, {
+						other = b,
+						normal = normal,
+					})
+					table.insert(b.collisions, {
+						other = a,
+						normal = normal:inverse(),
+					})
 				end
 			end
 		end
@@ -86,29 +107,71 @@ function physics_system:update(dt)
 	--collide against level
 	for _, v in ipairs(self.all) do
 		if v.collide_map then
-			v.grounded = false
 			for _, line in ipairs(self.level) do
 				if intersect.circle_line_collide(
 					v.pos, v.radius,
 					line[1], line[2],
-					1.5, --line radius
+					0.5, --line radius
 					msv
 				) then
-					v.pos:fused_multiply_add_inplace(msv, 1)
-					v.normal:vector_add_inplace(msv:normalise_inplace())
+					v.pos:fused_multiply_add_inplace(msv, resolve_amount)
+					table.insert(v.collisions, {
+						other = "map",
+						normal = msv:normalise(),
+					})
 				end
 			end
 		end
 	end
 
-	--calc normal/grounded
+	--check zones
 	for _, v in ipairs(self.all) do
-		if v.normal:length_squared() ~= 0 then
-			v.normal:normalise_inplace()
-			intersect.bounce_off(v.vel, v.normal, v.bounce)
-			if v.normal.y < -0.2 then
+		if v.collide_map then
+			for _, zone in ipairs(self.zones) do
+				if intersect.point_aabb_overlap(
+					v.pos, --note: just point, so we only enter when the centre is inside
+					zone.pos, zone.halfsize
+				) then
+					v.zones[zone.type] = true
+				end
+			end
+		end
+	end
+
+	--calc grounded and perform bounce and momentum transfer
+	local oldvel = vec2()
+	local delta = vec2()
+	local target_normal = vec2(0, -1)
+	for _, v in ipairs(self.all) do
+		v.grounded = false
+		for _, col in ipairs(v.collisions) do
+			--cache old velocity
+			oldvel:vector_set(v.vel)
+			--do bounce
+			intersect.bounce_off(v.vel, col.normal, v.bounce)
+
+			--transfer change in momentum
+			if col.other ~= "map" then
+				delta:vector_set(v.vel)
+					:vector_sub_inplace(oldvel)
+					:scalar_mul_inplace(v.mass)
+					:scalar_div_inplace(col.other.mass)
+					:scalar_mul_inplace(col.other.bounce)
+
+				col.other.vel:vector_sub_inplace(delta)
+			end
+
+			if col.normal.y < -0.2 then
 				v.grounded = true
 			end
+		end
+		local groundlike_normal = functional.find_min(v.collisions, function(col)
+			return col.normal:angle_difference(target_normal)
+		end)
+		if groundlike_normal then
+			v.normal:vector_set(groundlike_normal.normal)
+		else
+			v.normal:scalar_set(0)
 		end
 	end
 
@@ -125,13 +188,21 @@ function physics_system:draw()
 				v[2].x, v[2].y
 			)
 		end
-		lg.setColor(colour.unpack_argb(0xffff8080))
 		for i, v in ipairs(self.all) do
+			lg.setColor(colour.unpack_argb(v.solid and 0xffff8080 or 0x80ff8080))
 			lg.circle(
 				"line",
 				v.pos.x, v.pos.y,
 				v.radius
 			)
+			for _, col in ipairs(v.collisions) do
+				lg.setColor(colour.unpack_argb(0xff8080ff))
+				local col_len = v.radius
+				lg.line(
+					v.pos.x, v.pos.y,
+					v.pos.x + col.normal.x * col_len, v.pos.y + col.normal.y * col_len
+				)
+			end
 		end
 		lg.pop()
 	end
