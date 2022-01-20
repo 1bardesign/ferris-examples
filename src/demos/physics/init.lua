@@ -1,7 +1,10 @@
 local physics_demo = class({})
 
 physics_demo.name = "physics and platforming"
-physics_demo.description = "an example physics system and a player avatar"
+physics_demo.description = ([[
+	an example physics system and a player avatar
+	(wasd or arrows to move)
+]]):dedent()
 
 function physics_demo:new(parent)
 	self.k = ferris.kernel()

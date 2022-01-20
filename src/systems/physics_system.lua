@@ -188,6 +188,14 @@ function physics_system:draw()
 				v[2].x, v[2].y
 			)
 		end
+		lg.setColor(colour.unpack_argb(0xff80ffff))
+		for i, v in ipairs(self.zones) do
+			lg.rectangle(
+				"line",
+				v.pos.x - v.halfsize.x, v.pos.y - v.halfsize.y,
+				v.halfsize.x * 2, v.halfsize.y * 2
+			)
+		end
 		for i, v in ipairs(self.all) do
 			lg.setColor(colour.unpack_argb(v.solid and 0xffff8080 or 0x80ff8080))
 			lg.circle(

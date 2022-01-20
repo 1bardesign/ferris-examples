@@ -63,7 +63,7 @@ function state:draw_ui()
 	lg.push()
 	local line_height = lg.getFont():getHeight()
 	local margin = 4
-	local lines = 3
+	local lines = 4
 	lg.translate(margin, ui_canvas:getHeight() - line_height * lines - margin)
 	if keyboard:pressed("`") then
 		local k = current_state.k
@@ -88,15 +88,16 @@ function state:draw_ui()
 		lg.pop()
 		lg.translate(0, line_height * 2)
 		lg.push()
+		lg.translate(20, 0)
 		lg.print(("frame time: %0.2fms (%d fps)"):format(total_time * 1000, 1 / math.max(0.001, total_time)))
-		lg.translate(20 + 240, 0)
+		lg.translate(0, line_height)
 		lg.print(("memory: %0.2fmb"):format(collectgarbage("count") / 1024, lg.getStats().texturememory / 1024 / 1024))
 		lg.pop()
 	else
 		lg.print(sequence{
 			("demo: %s"):format(current_state.name),
-			("   %s"):format(current_state.description),
-			"(press ~ for stats)",
+			("%s"):format(current_state.description),
+			"(press ~ for stats, tab to switch demo)"
 		}:concat("\n"))
 	end
 	lg.pop()

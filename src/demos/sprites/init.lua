@@ -1,7 +1,10 @@
 local sprite_demo = class({})
 
 sprite_demo.name = "sprites and entities"
-sprite_demo.description = "complex sprite management and lots of particle spam"
+sprite_demo.description = ([[
+	complex sprite management and lots of particle spam
+	(space to add an extra firework)
+]]):dedent()
 
 function sprite_demo:new(parent)
 	self.k = ferris.kernel()
