@@ -1,8 +1,7 @@
 return function(systems, args)
 	local e = ferris.entity(systems)
 
-	local img = assets.image.human
-
+	--
 	local body = e:add_component("physics", "body", {
 		pos = args.pos:copy(),
 		vel = vec2(),
@@ -13,15 +12,26 @@ return function(systems, args)
 		air_friction = 0.1,
 	})
 
-	local sprite = e:add_component("sprite", "sprite", img)
-	sprite.size = vec2(16, 16)
-	sprite.framesize = sprite.size:scalar_div(img:getDimensions())
+	--float in water
+	e:add_component("behaviour", "float", require("src.demos.physics.float")(
+		e,
+		body,
+		vec2(0, -10)
+	))
+
+	--set up the sprite
+	local row = table.pick_random({0, 1}) --randomly pick sprite variation
+	local sprite = e:add_component("sprite", "sprite", {
+		texture = assets.image.human,
+		layout = vec2(6, 2),
+		frame = vec2(0, row),
+	})
 	sprite.pos = body.pos --bind directly to body
 
-	local row = table.pick_random({0, 1}) --randomly pick variation
-	sprite.frame:scalar_set(0, row)
-
+	--set up some animations
+	--for some more commentary on this, check the particle entity file
 	local animation = e:add_component("animation", "animation", sprite)
+
 	animation:add_anim(
 		"idle",
 		{ {0, row}, },
@@ -49,11 +59,13 @@ return function(systems, args)
 		10,
 		false
 	)
-
+	--don't forget to set!
 	animation:set_anim("idle")
 
-	require("src.demos.physics.float")(e, body, vec2(0, -10))
-
+	--set up player movement behaviour
+	--this is the kind of thing where a behaviour really shines
+	--it wouldn't make much sense to have a whole system for this,
+	--and it's nicer to have it inline with the player if you can
 	e:add_component("behaviour", "move", {
 		jump_timer = timer(0.25),
 		angle_timer = timer(0.5),

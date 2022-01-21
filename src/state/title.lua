@@ -39,16 +39,14 @@ function state:enter()
 			game_state:transition("demos")
 		end},
 		{"game", [[
-			This is the example game. It's a more involved example integrating a lot of the concepts from the demos, and some new stuff as well.
-
-			You can view the source code under src/game
+			This will lead to the example game, when it's done. It'll be a more involved example integrating a lot of the concepts from the demos, and some new stuff as well.
 		]], function()
-			game_state:transition("game")
+			-- game_state:transition("game")
 		end},
 		{"source code", [[
 			The code for these examples, and for Ferris itself, is currently hosted on github, and is freely available under the zlib license.
 
-			Select this option to view to the example repository.
+			Select this option to view the example repository.
 		]], function()
 			love.system.openURL("https://github.com/1bardesign/ferris-examples/")
 		end},

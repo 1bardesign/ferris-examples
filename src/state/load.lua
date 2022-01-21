@@ -19,6 +19,7 @@ assets = {
 		wheel_bits = "wheel-bits.png",
 		human = "human.png",
 		dispenser = "dispenser.png",
+		ball = "ball.png",
 	},
 	imagedata = {
 		--pixel data required

@@ -19,7 +19,7 @@ end
 
 function state:update(dt)
 	if keyboard:just_pressed("escape") then
-		return "title"
+		game_state:transition("title")
 	end
 
 	local state_index = table.index_of(demo_states, self.state.current_state_name)

@@ -1,8 +1,6 @@
 return function(systems, args)
 	local e = ferris.entity(systems)
 
-	local img = assets.image.dispenser
-
 	local body = e:add_component("physics", "body", {
 		pos = args.pos:copy(),
 		vel = args.vel:copy(),
@@ -13,21 +11,30 @@ return function(systems, args)
 		air_friction = 0.1,
 	})
 
-	require("src.demos.physics.float")(e, body, vec2(0, -10))
+	--float in water
+	e:add_component("behaviour", "float", require("src.demos.physics.float")(
+		e,
+		body,
+		vec2(0, -10)
+	))
 
-	local sprite = e:add_component("sprite", "sprite", img)
-	sprite.size = vec2(10, 10)
-	sprite.framesize = sprite.size:scalar_div(img:getDimensions())
+	local sprite = e:add_component("sprite", "sprite", {
+		texture = assets.image.ball,
+		layout = vec2(1,2),
+		frame = vec2(3, love.math.random(0, 1)),
+		rot = love.math.random() * math.tau,
+	})
 	sprite.pos = body.pos --bind directly to body
-	sprite.frame:scalar_set(3, table.pick_random({0, 1}))
-	sprite.rot = love.math.random() * math.tau
 
-	e:add_component("behaviour", "roll_sprite", {
+	--make the sprite roll as it moves horizontally
+	--we don't actually have any rolling physics :)
+	e:add_component("behaviour", "roll sprite", {
 		update = function(self, dt)
 			sprite.rot = sprite.rot + body.vel.x / (math.tau * math.max(1, body.radius)) * 3 * dt
 		end,
 	})
 
+	--shrink to nothing and then vanish
 	e:add_component("behaviour", "shrink to nothing", {
 		timer = timer(20),
 		start_radius = body.radius,

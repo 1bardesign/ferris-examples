@@ -8,11 +8,12 @@ return function(systems, args)
 		solid = false,
 	})
 
-	local sprite = e:add_component("sprite", "sprite", img)
-	sprite.size = vec2(24, 24)
-	sprite.framesize = sprite.size:scalar_div(img:getDimensions())
+	local sprite = e:add_component("sprite", "sprite", {
+		texture = img,
+		layout = vec2(1, 1),
+		z = 1,
+	})
 	sprite.pos = body.pos --bind directly to body
-	sprite.z = 1
 
 	e:add_component("behaviour", "dispense ball", {
 		timer = timer(1.13),

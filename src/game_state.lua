@@ -1,4 +1,7 @@
 --ultra basic game state management
+--	just a central state machine
+--	async handler for simplifying transitions
+--	and game/ui canvases
 
 --global
 game_state = {
@@ -17,6 +20,8 @@ game_state = {
 }
 
 --upscale shared "screens"
+--game is zoomed in for smoother rotations etc
+--they are composited together each draw
 local game_factor = 2
 local game_zoom = 2
 local ui_factor = 2
@@ -35,12 +40,14 @@ ui_canvas:setFilter("nearest", "nearest")
 --start off black, fade in
 game_state.fade:flash(0xff000000, 0.1)
 
+--update the game state and any transitions
 function game_state:update(dt)
 	self.async:update_for_time(1e-3, true)
 	self.fade:update(dt)
 	self.states:update(dt)
 end
 
+--draw the game, and ui, and then composite together
 function game_state:draw()
 	lg.push("all")
 		lg.push()
@@ -67,6 +74,7 @@ function game_state:draw()
 	self.fade:draw()
 end
 
+--do a transition between game states
 function game_state:transition(to_state)
 	if self.current_transition then
 		return
