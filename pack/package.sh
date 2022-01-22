@@ -7,7 +7,7 @@ rm -f ferris-examples-win.zip
 
 #raw love2d file
 cd ..
-zip -r pack/ferris-examples.love *.lua src assets lib
+zip pack/ferris-examples.love -r *.lua src assets lib -x "*/.*"
 cd pack
 
 #windows
