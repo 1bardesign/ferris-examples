@@ -39,7 +39,9 @@ function state:enter()
 			game_state:transition("demos")
 		end},
 		{"game", [[
-			This will lead to the example game, when it's done. It'll be a more involved example integrating a lot of the concepts from the demos, and some new stuff as well.
+			This will lead to the example game, when it's done!
+
+			The game will be a more involved example integrating a lot of the concepts from the demos, with some new stuff as well.
 		]], function()
 			-- game_state:transition("game")
 		end},
@@ -67,6 +69,10 @@ function state:enter()
 
 	--interaction with menu
 	self.k:add_task("update", function(k, dt)
+		if keyboard:just_pressed("escape") then
+			love.event.quit()
+		end
+
 		if keyboard:just_pressed("up") then
 			self.selected = self.selected - 1
 		end
