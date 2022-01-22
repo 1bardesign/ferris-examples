@@ -2,6 +2,10 @@
 
 Get your head around how [ferris](https://github.com/1bardesign/ferris) is meant to be used to make games, with some worked examples.
 
+You can get packaged examples on itch [here](https://1bardesign.itch.io/ferris-examples).
+
+The official repository for these examples is [here](https://github.com/1bardesign/ferris-examples/).
+
 # Demos/Game Split
 
 Some more focussed "feature" demos are being prepared alongside a more integrated mini-game.
