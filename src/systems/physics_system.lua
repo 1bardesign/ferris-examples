@@ -143,14 +143,13 @@ function physics_system:update(dt)
 	local delta = vec2()
 	local target_normal = vec2(0, -1)
 	for _, v in ipairs(self.all) do
-		v.grounded = false
 		for _, col in ipairs(v.collisions) do
 			--cache old velocity
 			oldvel:vector_set(v.vel)
 			--do bounce
 			intersect.bounce_off(v.vel, col.normal, v.bounce)
 
-			--transfer change in momentum
+			--transfer any change in momentum to the other body
 			if col.other ~= "map" then
 				delta:vector_set(v.vel)
 					:vector_sub_inplace(oldvel)
@@ -160,16 +159,22 @@ function physics_system:update(dt)
 
 				col.other.vel:vector_sub_inplace(delta)
 			end
-
-			if col.normal.y < -0.2 then
-				v.grounded = true
+		end
+		--find the normal pointing "the most up" for use as our reference
+		local upright_normal, lowest_difference = nil, math.huge
+		for _, col in ipairs(v.collisions) do
+			local difference = math.abs(col.normal:angle_difference(target_normal))
+			if difference < lowest_difference then
+				lowest_difference = difference
+				upright_normal = col.normal
 			end
 		end
-		local groundlike_normal = functional.find_min(v.collisions, function(col)
-			return col.normal:angle_difference(target_normal)
-		end)
-		if groundlike_normal then
-			v.normal:vector_set(groundlike_normal.normal)
+
+		v.grounded = false
+		if upright_normal then
+			v.normal:vector_set(upright_normal)
+			--grounded if within a fifth of a turn of up, either side
+			v.grounded = lowest_difference < (math.tau / 5)
 		else
 			v.normal:scalar_set(0)
 		end

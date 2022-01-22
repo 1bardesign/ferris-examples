@@ -1,11 +1,13 @@
-local physics_demo = class({})
+local physics_demo = class()
 
+--for the demo state ui
 physics_demo.name = "physics and platforming"
 physics_demo.description = ([[
 	an example physics system and a player avatar
 	(wasd or arrows to move)
 ]]):dedent()
 
+--setup
 function physics_demo:new(parent)
 	self.k = ferris.kernel()
 		:add_system("bg_tiles", require("src.systems.tile_system"){

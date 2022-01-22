@@ -21,7 +21,7 @@ return function(systems, args)
 	local sprite = e:add_component("sprite", "sprite", {
 		texture = assets.image.ball,
 		layout = vec2(1,2),
-		frame = vec2(3, love.math.random(0, 1)),
+		frame = vec2(0, love.math.random(0, 1)),
 		rot = love.math.random() * math.tau,
 	})
 	sprite.pos = body.pos --bind directly to body

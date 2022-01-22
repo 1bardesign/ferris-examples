@@ -89,33 +89,37 @@ return function(systems, args)
 	for i = 1, struts do
 		local angle = math.tau / struts * i
 
-		local beam = e:add_component("sprite", nil, img)
-		beam.framesize:sset(1):sdivi(1, 4)
-		beam.frame:sset(0, 1)
-		beam.size:vmuli(beam.framesize)
-		beam.pos:vset(args.pos)
-		beam.offset:sset(beam.size.x/2 - 2, 0)
-		beam.z = -1
+		local beam = e:add_component("sprite", nil, {
+			texture = img,
+			layout = vec2(1, 4),
+			frame = vec2(0, 1),
+			pos = args.pos,
+			z = -1,
+		})
+		beam.offset = vec2(beam.size.x/2 - 2, 0)
 
-		local cog = e:add_component("sprite", nil, img)
-		cog.framesize:sset(1):sdivi(1, 4)
-		cog.frame:sset(0, 2)
-		cog.size:vmuli(cog.framesize)
-		cog.pos:vset(args.pos)
+		local cog = e:add_component("sprite", nil, {
+			texture = img,
+			layout = vec2(1, 4),
+			frame = vec2(0, 2),
+			pos = args.pos,
+			z = 0,
+		})
 		cog.offset:sset(cog.size.x/2 - 3, 0)
-		cog.z = 0
 
-		local outer = e:add_component("sprite", nil, img)
-		outer.framesize:sset(1):sdivi(1, 4)
-		outer.size:vmuli(outer.framesize)
-		outer.frame:sset(0, 0)
-		outer.z = -2
+		local outer = e:add_component("sprite", nil, {
+			texture = img,
+			layout = vec2(1, 4),
+			frame =  vec2(0, 0),
+			z = -2,
+		})
 
-		local seat = e:add_component("sprite", nil, img)
-		seat.framesize:sset(1):sdivi(1, 4)
-		seat.size:vmuli(seat.framesize)
-		seat.frame:sset(0, 3)
-		seat.z = 1
+		local seat = e:add_component("sprite", nil, {
+			texture = img,
+			layout = vec2(1, 4),
+			frame = vec2(0, 3),
+			z = 1,
+		})
 		seat.offset:sset(0, seat.size.y/2 - 1)
 
 		table.insert(wheel_update.wheel_bits, {

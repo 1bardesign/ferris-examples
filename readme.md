@@ -1,6 +1,6 @@
 # Examples for the Ferris Game Framework
 
-Get your head around how [ferris](https://github.com/1bardesign/ferris) is meant to be used to make games, with a bunch of worked examples.
+Get your head around how [ferris](https://github.com/1bardesign/ferris) is meant to be used to make games, with some worked examples.
 
 # Demos/Game Split
 
@@ -19,7 +19,7 @@ We can reevaluate if this split still makes sense once they're all actually fini
 
 ## Game
 
-- tbd, but some kind of infinite platformer is probable
+- tbd, but some kind of infinite procgen platformer is probable
 - or zelda-like?
 
 # Caveats
@@ -31,6 +31,10 @@ Behaviours are one of the big "wins" of ferris over more traditional ecs - you d
 It's almost _too_ easy to do this.
 
 A downside is that you can overdo this and sort of forget that systems exist, even when they might be a better fit :) This is done as a deliberate example for the particle entity - the "transform" component should really be in its own system. Thankfully, migrating from a behaviour to a "proper" component is not much work when you need to. Just be mindful of this. A good middle ground is creating classes for behaviours you find yourself reusing.
+
+**No Audio, Yet**
+
+It's coming, but you can also get a really long way by just loading a few sound effects and playing them from the start upon something happening, and sticking some looping music in the background. I just haven't had time to source proper sound for the demos yet - or to pull a few handy sound utility things out of arco :)
 
 **No ui layout stuff**
 
