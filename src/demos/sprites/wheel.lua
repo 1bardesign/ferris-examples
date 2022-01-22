@@ -2,32 +2,41 @@ return function(systems, args)
 	local e = ferris.entity(systems)
 
 	local img = assets.image.wheel_bits
+	local centre_pos = args.pos
 
 	local struts = 6
 
+	--one-off behaviour for updating the ferris wheel
 	local wheel_update = e:add_component("behaviour", "wheel_update", {
-		wheel_bits = {},
+		--we populate this later with a group of sprites for each strut of the wheel
+		wheel_chunks = {},
+		--the current angle
 		angle = 0,
+		--the turning speed
 		speed = 0.2,
+		--timer that manages the overall pace of the firework show
 		firework_show_timer = timer(40),
+		--timer for spacing the fireworks out
 		firework_timer = timer(1),
 		update = function(self, dt)
+			--spin the wheel
 			self.angle = math.normalise_angle(self.angle + self.speed * dt)
-			for _, chunk in ipairs(self.wheel_bits) do
+			for _, chunk in ipairs(self.wheel_chunks) do
 				local angle = chunk.angle + self.angle
 
-				chunk.beam.pos:vset(args.pos)
-				chunk.cog.pos:vset(args.pos)
+				--reposition all the various bits of this chunk
+				chunk.beam.pos:vset(centre_pos)
+				chunk.cog.pos:vset(centre_pos)
 				chunk.beam.rot = angle
 				chunk.cog.rot = angle
 				--seat pivot
 				local pivot = vec2(chunk.seat.size.x - 12, 0):rotate_inplace(angle)
-				chunk.seat.pos:vset(args.pos):vector_add_inplace(pivot)
+				chunk.seat.pos:vset(centre_pos):vector_add_inplace(pivot)
 				chunk.seat.rot = 0
 
 				--outer pivot
 				local pivot = vec2(chunk.outer.size.x - 20, 0):rotate_inplace(angle + math.tau/struts/2)
-				chunk.outer.pos:vset(args.pos):vector_add_inplace(pivot)
+				chunk.outer.pos:vset(centre_pos):vector_add_inplace(pivot)
 				chunk.outer.rot = angle + (math.tau / struts) * 2
 			end
 
@@ -49,10 +58,10 @@ return function(systems, args)
 				)
 				local possible_pos = table.append(
 					--seat positions
-					functional.map(self.wheel_bits, function(v)
+					functional.map(self.wheel_chunks, function(v)
 						return v.seat.pos:scalar_add(5, 8)
 					end),
-					--tiles
+					--"launcher" tiles on the map
 					{
 						vec2(7, 14)
 							:scalar_add_inplace(0.5, 0)
@@ -86,6 +95,8 @@ return function(systems, args)
 		end,
 	})
 
+	--construct all the various sprites for each strut section
+	--the sprites are laid out to make this not a huge chore (but also not trivial)
 	for i = 1, struts do
 		local angle = math.tau / struts * i
 
@@ -93,7 +104,7 @@ return function(systems, args)
 			texture = img,
 			layout = vec2(1, 4),
 			frame = vec2(0, 1),
-			pos = args.pos,
+			pos = centre_pos,
 			z = -1,
 		})
 		beam.offset = vec2(beam.size.x/2 - 2, 0)
@@ -102,7 +113,7 @@ return function(systems, args)
 			texture = img,
 			layout = vec2(1, 4),
 			frame = vec2(0, 2),
-			pos = args.pos,
+			pos = centre_pos,
 			z = 0,
 		})
 		cog.offset:sset(cog.size.x/2 - 3, 0)
@@ -122,7 +133,8 @@ return function(systems, args)
 		})
 		seat.offset:sset(0, seat.size.y/2 - 1)
 
-		table.insert(wheel_update.wheel_bits, {
+		--populate the wheel_chunks table with our info
+		table.insert(wheel_update.wheel_chunks, {
 			angle = angle,
 			beam = beam,
 			cog = cog,
@@ -132,9 +144,17 @@ return function(systems, args)
 	end
 
 	--get everything positioned
+	--(we just use the update function so we don't have to double up)
 	wheel_update:update(0)
 
-	--manage some party people in and out
+	--convenience function to get the current lowest seat sprite
+	local function lowest_seat()
+		return functional.find_max(wheel_update.wheel_chunks, function(v)
+			return v.seat.pos.y
+		end).seat
+	end
+
+	--manage some party people, in and out of the ferris wheel
 	local people_in = {}
 	local people_out = functional.generate(10, function()
 		return require("src.demos.sprites.party_person")(systems, {
@@ -144,26 +164,29 @@ return function(systems, args)
 			):scalar_mul_inplace(8)
 		})
 	end)
-	local function lowest_seat()
-		return functional.find_max(wheel_update.wheel_bits, function(v)
-			return v.seat.pos.y
-		end).seat
-	end
 
-	local people_management = nil --so we can bind in state machine closures
+	--(forward declared so we can use the variable name in our state machine closures)
+	local people_management = nil
+	--actually set up the behaviour
 	people_management = e:add_component("behaviour", "people_management", {
 		bindings = {},
 		state = state_machine({
+			--pull in a character
 			get_in = {
 				enter = function(self)
+					--we wait a little bit each time
 					self.timer = timer(1.5)
 				end,
 				update = function(self, dt)
 					self.timer:update(dt)
 					if self.timer:expired() then
+						--get the lowest seat, and a random person
 						local s = lowest_seat()
 						local p = table.take_random(people_out)
+						--put the person into the "in" set
 						table.insert(people_in, p)
+						--create a binding table
+						--with temporary variables for us to monitor the stuff
 						local binding = {
 							person = p,
 							old_pos = p:c("sprite").pos:copy(),
@@ -206,7 +229,27 @@ return function(systems, args)
 		update = function(self, dt)
 			self.state:update(dt)
 			for i, v in ipairs(self.bindings) do
-				v.person:c("sprite").pos:vset(v.seat.pos):scalar_add_inplace(0, 14)
+				--get a shorthand reference to the sprite
+				local s = v.person:c("sprite")
+				--check if the seat is higher than the centre of the wheel
+				local above_middle = v.seat.pos.y < centre_pos.y
+				--raise arms when above the middle
+				s.frame.x = above_middle
+					and 1
+					or 0
+				--wiggle up and down when above the middle too
+				local wiggle_offset = 0
+				if above_middle then
+					--(we could also accumulate this separately in the binding table)
+					local t = love.timer.getTime()
+					--calculate a "bouncy" wiggle offset
+					wiggle_offset = math.abs(
+						math.sin(t * math.tau * 2) * 2
+					)
+				end
+				--anchor to the seat sprite
+				s.pos:vector_set(v.seat.pos)
+					:scalar_add_inplace(0, 14 - wiggle_offset)
 			end
 		end,
 	})
